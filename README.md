@@ -25,7 +25,7 @@ A standalone console application built with LangChain and LangGraph to manage pr
 
 1. **Clone the Repository**
 ```bash
-git clone <repo-url>
+git clone https://github.com/Nathan00yiu/console-project-agent.git
 cd console-project-agent
 
 ```
