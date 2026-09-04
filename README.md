@@ -59,15 +59,8 @@ pip install -r requirements.txt
 
 4. **Configure Environment Variables**
 Create a `.env` file in the root directory:
-* **Option A: OpenAI / OpenRouter**
-```env
-OPENAI_API_KEY=your_openai_api_key_here
-# OPENAI_BASE_URL=https://openrouter.ai/api/v1  # Uncomment if using OpenRouter
 
-```
-
-
-* **Option B: Local Ollama Setup**
+Local Ollama Setup**
 ```env
 OPENAI_API_KEY=ollama
 OPENAI_BASE_URL=http://localhost:11434/v1
