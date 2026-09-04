@@ -67,6 +67,13 @@ OPENAI_BASE_URL=http://localhost:11434/v1
 
 ```
 
+```bash
+ollama serve
+ollama pull llama3
+
+```
+
+
 
 
 
