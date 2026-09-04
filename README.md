@@ -67,7 +67,7 @@ OPENAI_BASE_URL=http://localhost:11434/v1
 
 ```
 
-Run Ollama and the pull required model:
+**Run Ollama and the pull required model**
 ```bash
 ollama serve
 ollama pull llama3
