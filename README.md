@@ -4,7 +4,7 @@ A standalone console application built with LangChain and LangGraph to manage pr
 
 ---
 
-## 📋 Features
+## Features
 
 * **Natural Language Processing:** Create, list, and delete projects using conversational prompts.
 * **Smart Field Extraction:** Automatically extracts key project details (project name, customer) from user input.
@@ -14,14 +14,14 @@ A standalone console application built with LangChain and LangGraph to manage pr
 
 ---
 
-## 🛠️ Prerequisites
+## Prerequisites
 
 * **Python:** `3.10` or higher
 * **Package Manager:** `pip`
 
 ---
 
-## ⚙️ Installation & Setup
+## Installation & Setup
 
 1. **Clone the Repository**
 ```bash
@@ -81,7 +81,7 @@ ollama pull llama3
 
 ---
 
-## 🚀 Running the Application
+## Running the Application
 
 Execute the main script to start the interactive terminal session:
 
@@ -92,7 +92,7 @@ python main.py
 
 ---
 
-## 💡 Usage Examples
+## Usage Examples
 
 Once running, enter natural language prompts at the `>` prompt:
 
@@ -136,7 +136,7 @@ Once running, enter natural language prompts at the `>` prompt:
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 
 ```text
 .

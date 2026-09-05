@@ -1,15 +1,7 @@
 [
   {
-    "project_name": "beta",
-    "customer": "Globex",
-    "start_date": null,
-    "location": null,
-    "status": "Active",
-    "notes": null
-  },
-  {
-    "project_name": "My Project",
-    "customer": "John Doe",
+    "project_name": "my project",
+    "customer": "Nathan",
     "start_date": null,
     "location": null,
     "status": "Active",
