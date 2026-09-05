@@ -43,7 +43,7 @@ source venv/bin/activate
 * **Windows (PowerShell):**
 ```powershell
 python -m venv venv
-.\venv\Scripts\Activate.ps1
+.\venv\Scripts\Activate.bat
 
 ```
 
