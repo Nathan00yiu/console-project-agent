@@ -58,16 +58,16 @@ pip install -r requirements.txt
 
 
 4. **Configure Environment Variables**
-Create a `.env` file in the root directory:
+`.env` file in the root directory:
 
-**Local Ollama Setup**
+* **Local Ollama Setup**
 ```env
 OPENAI_API_KEY=ollama
 OPENAI_BASE_URL=http://localhost:11434/v1
 
 ```
 
-**Run Ollama and the pull required model**
+* **Run Ollama and the pull required model**
 ```bash
 ollama serve
 ollama pull llama3
