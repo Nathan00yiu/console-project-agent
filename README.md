@@ -132,7 +132,12 @@ Once running, enter natural language prompts at the `>` prompt:
 
 ```
 
+* **Create project with more information:**
+```text
 
+> Create a project called Alpha for customer Acme ,the start date is 31/10 and location is HongKong
+
+```
 
 ---
 
@@ -149,3 +154,7 @@ Once running, enter natural language prompts at the `>` prompt:
 └── projects.json    # Persistent project storage (auto-generated)
 
 ```
+
+## LangGraph workflow
+
+The LangGraph workflow defined in agent.py takes raw natural language input, passes it to the LLM to classify intent, and dynamically routes the request to the correct database handler node.

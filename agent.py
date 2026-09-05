@@ -1,8 +1,7 @@
 import os
-from typing import TypedDict, Annotated, Optional
+from typing import TypedDict, Optional
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
-from langchain_core.messages import HumanMessage, SystemMessage
 from schema import UserIntent, Project
 from database import save_project, load_projects, delete_project
 from langgraph.graph import StateGraph, END
@@ -15,21 +14,35 @@ class AgentState(TypedDict):
     intent: Optional[str]
     extracted_data: Optional[dict]
     response: str
-    
-llm = ChatOpenAI(
-    model="llama3",  # Make sure you've run: ollama run llama3
-    temperature=0,
-    base_url=os.getenv("OPENAI_BASE_URL", "http://localhost:11434/v1"),
-    api_key=os.getenv("OPENAI_API_KEY", "ollama")
-)
+
+# Provider-agnostic LLM Initialization
+llm_model = os.getenv("LLM_MODEL", "llama3")
+api_key = os.getenv("OPENAI_API_KEY", "ollama")
+base_url = os.getenv("OPENAI_BASE_URL", "http://localhost:11434/v1")
+
+llm_kwargs = {
+    "model": llm_model,
+    "temperature": 0,
+    "api_key": api_key,
+}
+
+if base_url:
+    llm_kwargs["base_url"] = base_url
+
+llm = ChatOpenAI(**llm_kwargs)
+
 
 def classify_and_extract(state: AgentState) -> AgentState:
     structured_llm = llm.with_structured_output(UserIntent)
     
     prompt = f"""
-    Analyze the user input and extract intent and project fields.
-    Intents: 'create', 'list', 'delete', 'unclear'.
-    Required fields for 'create': project_name, customer.
+    Analyze the user input and extract intent and all matching project fields.
+    
+    Field Requirements:
+    - Mandatory: project_name, customer
+    - Optional: start_date, location, notes, status
+    
+    Supported Intents: 'create', 'list', 'delete', 'unclear'.
     If 'create' is intended but 'project_name' or 'customer' is missing, add them to missing_fields.
     
     User input: {state['user_input']}
@@ -43,9 +56,10 @@ def classify_and_extract(state: AgentState) -> AgentState:
         "extracted_data": result.model_dump()
     }
 
+
 def handle_create(state: AgentState) -> AgentState:
-    data = state["extracted_data"]
-    missing = data.get("missing_fields", [])
+    data = state["extracted_data"] or {}
+    missing = data.get("missing_fields") or []
     
     if not data.get("project_name"):
         missing.append("project_name")
@@ -58,12 +72,29 @@ def handle_create(state: AgentState) -> AgentState:
         fields_str = " and ".join(missing)
         return {**state, "response": f"Please provide the missing information: {fields_str}."}
 
+    # Construct Pydantic model passing mandatory + optional fields
     project = Project(
         project_name=data["project_name"],
-        customer=data["customer"]
+        customer=data["customer"],
+        start_date=data.get("start_date"),
+        location=data.get("location"),
+        status=data.get("status") or "Active",
+        notes=data.get("notes")
     )
     save_project(project.model_dump())
-    return {**state, "response": f"Done. Created project \"{project.project_name}\" for customer {project.customer}."}
+
+    # Format response including optional metadata
+    details = []
+    if project.start_date:
+        details.append(f"Start: {project.start_date}")
+    if project.location:
+        details.append(f"Location: {project.location}")
+    if project.notes:
+        details.append(f"Notes: {project.notes}")
+    
+    extra_str = f" ({', '.join(details)})" if details else ""
+    return {**state, "response": f"Done. Created project \"{project.project_name}\" for customer {project.customer}{extra_str}."}
+
 
 def handle_list(state: AgentState) -> AgentState:
     projects = load_projects()
@@ -72,12 +103,23 @@ def handle_list(state: AgentState) -> AgentState:
     
     out = [f"Here are your projects ({len(projects)}):"]
     for idx, p in enumerate(projects, 1):
-        out.append(f"{idx}. {p['project_name']} — customer: {p['customer']}")
+        details = []
+        if p.get("start_date"):
+            details.append(f"Start: {p['start_date']}")
+        if p.get("location"):
+            details.append(f"Location: {p['location']}")
+        if p.get("status"):
+            details.append(f"Status: {p['status']}")
+        
+        detail_str = f" | {', '.join(details)}" if details else ""
+        out.append(f"{idx}. {p['project_name']} — customer: {p['customer']}{detail_str}")
     
     return {**state, "response": "\n".join(out)}
 
+
 def handle_delete(state: AgentState) -> AgentState:
-    name = state["extracted_data"].get("project_name")
+    data = state["extracted_data"] or {}
+    name = data.get("project_name")
     if not name:
         return {**state, "response": "Which project name would you like to delete?"}
     
@@ -86,13 +128,16 @@ def handle_delete(state: AgentState) -> AgentState:
         return {**state, "response": f"Successfully deleted project '{name}'."}
     return {**state, "response": f"Project '{name}' not found."}
 
+
 def handle_unclear(state: AgentState) -> AgentState:
-    return {**state, "response": "I didn't quite understand that. You can try asking to 'create a project' or 'list projects'."}
+    return {**state, "response": "I didn't quite understand that. You can try asking to 'create a project', 'list projects', or 'delete project'."}
+
 
 def route_intent(state: AgentState) -> str:
-    return state.get("intent", "unclear")
+    return state.get("intent") or "unclear"
 
-# Build LangGraph
+
+# Build LangGraph workflow
 workflow = StateGraph(AgentState)
 
 workflow.add_node("classify", classify_and_extract)
