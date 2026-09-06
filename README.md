@@ -66,7 +66,7 @@ OPENAI_API_KEY=ollama
 OPENAI_BASE_URL=http://localhost:11434/v1
 
 ```
-* **Download & Install Ollama: From ollama.com.
+* **Download & Install Ollama:** From ollama.com.
 
 * **Run Ollama and the pull required model**
 ```bash
