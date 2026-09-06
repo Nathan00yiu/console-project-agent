@@ -1,7 +1,21 @@
+import os
 import sys
 from agent import graph
 
+ENV_CONTENT = """OPENAI_API_KEY=ollama
+OPENAI_BASE_URL=http://localhost:11434/v1
+"""
+
+def ensure_env_file():
+    """Check if .env file exists; if not, create it with default configuration."""
+    if not os.path.exists(".env"):
+        print("Creating missing .env file with default Ollama configuration...")
+        with open(".env", "w") as f:
+            f.write(ENV_CONTENT)
+
 def main():
+    ensure_env_file()
+    
     print("=== AI Project Manager CLI ===")
     print("Type your request or 'exit' / 'quit' to stop.\n")
 
